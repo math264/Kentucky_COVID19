@@ -213,7 +213,7 @@
       nameV = "NAME";
 
     // $.getJSON() here
-    var countyLayer = $.getJSON("data/counties_median_rent_2015.json", function (data) {
+    var countyLayer = $.getJSON("KY_COVID.json", function (data) {
 
       var dataLayer = L.geoJson(data, {
         style: function (feature) {
@@ -238,7 +238,7 @@
 
       // call to new function here gets the data out of the
       // callback function
-      drawMap(dataLayer);
+      //drawMap(dataLayer);
     });
 
 
