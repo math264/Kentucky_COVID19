@@ -172,7 +172,9 @@
     </p>
       <h2>Metadata/Behind the Scenes</h2>
     <p>
-      The geoJSON data was accessed using JQuery's AJAX in Leaflet's library. From there, the flow of execution 
+      The map's data represents two seperate files collected from the Urban Institue Data Catalog: a <b>.geoJSON</b> and a <b>.csv</b>.
+      Utilizing the spatial geometry of the geoJSON and job loss rate in the csv, a new geoJSON was exported with a complete
+      tabular join of the needed data. The geoJSON data was accessed using JQuery's AJAX in Leaflet's library. From there, the flow of execution 
       sequenced through .getJSON(), drawMap(), getColor(), and drawLegend() methods. Adding a 
       secondary state boundary geoJSON layer better defined states and their counties. 
       
@@ -233,9 +235,9 @@
       // find zoom extent from new layer
       var zoomExtent = dataLayer.getBounds()
 
-      // Apply the extent to our map with a custom property
-      // that says max zoom on load will not exceed 8
-      // which adds margin around the state.
+      // // Apply the extent to our map with a custom property
+      // // that says max zoom on load will not exceed 8
+      // // which adds margin around the state.
       map.fitBounds(zoomExtent, {
         maxZoom: 8
       })
@@ -280,7 +282,7 @@
         var props = layer.feature.properties;
         var tipInfo = (`<b>${props["county_name"]}</b> <br> <br>
         <b>Jobs Lost:</b> ${props[jobsV]} <br>
-        <i>Percent Job Loss: ${props[lossV]*100}</i>`)
+        <i>Percent Job Loss: ${Math.round(props[lossV]*100)}</i> <b>%</b>`)
 
         layer.setStyle({
           fillColor: getColor(props[lossV], breaks),
@@ -368,8 +370,8 @@
           // of that class and include a label with the low and a high ends of that class range
           div.innerHTML +=
             `<span style="background:${color}"></span>
-            <label>${(breaks[i][0]).toLocaleString()*100}&mdash;
-            ${(breaks[i][1]).toLocaleString()*100}</label>`;
+            <label>${Math.round((breaks[i][0]).toLocaleString()*100)}&mdash;
+            ${Math.round((breaks[i][1]).toLocaleString()*100)} %</label>`;
         }
 
         // return the populated div to be added to the map
