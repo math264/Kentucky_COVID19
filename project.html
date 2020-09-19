@@ -64,7 +64,7 @@
       font-weight: bolder;
       /* Style matches Leaflet controls */
       border: 2px solid rgba(244, 244, 244, 0.2);
-      background: #045a8d;
+      background:#a30000;
       color: #ffffff;
       border-radius: 5px;
       /* Position is fixed next to the zoom bar */
@@ -113,7 +113,7 @@
     h1 {
       display: inline-block;
       margin-right: 20px;
-      color: #045a8d;
+      color: #a30000;
     }
 
     h2 {
@@ -144,8 +144,8 @@
 
 <body>
   <header>
-    <h1>Covid-19 Job Loss</h1>
-    <h2>Low-Income Unemployment by County: KY</h2>
+    <h1>Covid-19 Pandemic</h1>
+    <h2>Low-Income Job Loss by County, US</h2>
   </header>
 
   <div id='map'></div>
@@ -163,9 +163,10 @@
 
   <footer>
     <p><b>Map authored by:</b> <i>Michael A. Thomas</i></p>
-    <p>This map displays the median gross rent in the U.S.A by county. The map is also interactive, so feel free
+
+    <p>This map displays the percentage of jobs lost in the US by county during Covid-19. The map is also interactive, so feel free
       to use its features: change the zoom level to see up close or states like Alaska that are not intranational -
-      reference the legend to understand the data breakdown - click on any county to see the name and median rent.
+      reference the legend to understand the data breakdown - click on any county to see the name and percent job loss.
       This map is mobile-friendly too, so you can enjoy it on the go! Click the INFORMATION button in the top right
       to open an info footer on mobile devices.
     </p>
@@ -205,17 +206,17 @@
     // Creating map and options
     var options = {
       zoomSnap: .1,
-      zoomControl: false
+      zoomControl: true
     }
     var map = L.map('map', options);
     // adding data using JQuery method and style for drawing data layer
     // assigning variables to the jquery method and geojson, they can be ref later
 
-    var lossV = "LOSS",
+    var lossV = "C_low_income_worker_job_loss_rate",
       countyV = "county_name";
 
     // $.getJSON() here
-    var countyLayer = $.getJSON("data/ky_covid.json", function (data) {
+    var countyLayer = $.getJSON("data/covid19_N.geojson", function (data) {
 
       var dataLayer = L.geoJson(data, {
         style: function (feature) {
@@ -255,7 +256,7 @@
               // Let's experiment with these colors shortly
               // color: '#222222', // Gray
               // color: '#00447c', // White
-              color: '#00447c',
+              color: '#a30000',
               // Make line weight larger than the county outline
               weight: 2.25,
               fillOpacity: 0,
@@ -276,7 +277,7 @@
       // var breaks = [[0, 100], [100, 200], [200, 300], [300, 400], [400, 10000]]
       dataLayer.eachLayer(function (layer) {
         var props = layer.feature.properties;
-        var tipInfo = (`<b>${props["county_name"]}</b> <br> <i>Low-Income Job Loss: ${props["LOSS"]}</i>`)
+        var tipInfo = (`<b>${props["county_name"]}</b> <br> <i>Percent Job Loss: ${props[lossV]*100}</i>`)
 
         layer.setStyle({
           fillColor: getColor(props[lossV], breaks),
@@ -305,7 +306,7 @@
       dataLayer.eachLayer(function (layer) {
         var props = layer.feature.properties;
         if (props[lossV] != null) {
-          var value = Number(props[lossV]/9288*10000);
+          var value = Number(props[lossV]);
           values.push(value);
           console.log(1);
         }
@@ -328,53 +329,53 @@
       if (d <= breaks[0][1]) {
         return '#f1eef6';
       } else if (d <= breaks[1][1]) {
-        return '#bdc9e1';
+        return '#ff9797';
       } else if (d <= breaks[2][1]) {
-        return '#74a9cf';
+        return '#ff5656';
       } else if (d <= breaks[3][1]) {
-        return '#2b8cbe'
+        return '#ff2020'
       } else if (d <= breaks[4][1]) {
-        return '#045a8d'
+        return '#a30000'
       }
     } // end getColor
 
-    // // LEGEND
-    // function drawLegend(breaks) {
+    // LEGEND
+    function drawLegend(breaks) {
 
-    //   // create a new Leaflet control object, and position it top left
-    //   var legend = L.control({ position: 'bottomleft' });
+      // create a new Leaflet control object, and position it top left
+      var legend = L.control({ position: 'bottomleft' });
 
-    //   // when the legend is added to the map
-    //   legend.onAdd = function () {
+      // when the legend is added to the map
+      legend.onAdd = function () {
 
-    //     // create a new HTML <div> element and give it a class name of "legend"
-    //     var div = L.DomUtil.create('div', 'legend');
+        // create a new HTML <div> element and give it a class name of "legend"
+        var div = L.DomUtil.create('div', 'legend');
 
-    //     // first append an <h3> tag to the div holding the current attribute
-    //     // and norm values (i.e., the mapped phenomena)
-    //     div.innerHTML = `<h3>Median Rent / Month<h3>`;
+        // first append an <h3> tag to the div holding the current attribute
+        // and norm values (i.e., the mapped phenomena)
+        div.innerHTML = `<h3>Percent Job Loss/County<h3>`;
 
-    //     // for each of our breaks
-    //     for (var i = 0; i < breaks.length; i++) {
-    //       // determine the color associated with each break value,
-    //       // including the lower range value
-    //       var color = getColor(breaks[i][0], breaks);
+        // for each of our breaks
+        for (var i = 0; i < breaks.length; i++) {
+          // determine the color associated with each break value,
+          // including the lower range value
+          var color = getColor(breaks[i][0], breaks);
 
-    //       // concatenate a <span> tag styled with the color and the range values
-    //       // of that class and include a label with the low and a high ends of that class range
-    //       div.innerHTML +=
-    //         `<span style="background:${color}"></span>
-    //         <label>${(breaks[i][0]).toLocaleString()}&mdash;
-    //         ${(breaks[i][1]).toLocaleString()}</label>`;
-    //     }
+          // concatenate a <span> tag styled with the color and the range values
+          // of that class and include a label with the low and a high ends of that class range
+          div.innerHTML +=
+            `<span style="background:${color}"></span>
+            <label>${(breaks[i][0]).toLocaleString()*100}&mdash;
+            ${(breaks[i][1]).toLocaleString()*100}</label>`;
+        }
 
-    //     // return the populated div to be added to the map
-    //     return div;
-    //   };
+        // return the populated div to be added to the map
+        return div;
+      };
 
-    //   // add the legend to the map
-    //   legend.addTo(map);
-    // }
+      // add the legend to the map
+      legend.addTo(map);
+    }
 
     /* --------------- Toggle on/off info footer content ---------------  */
     var clicked = false // start with false condition
@@ -385,10 +386,10 @@
       var x = document.getElementById('footer');
       var y = document.getElementById('info-button');
       if (clicked) {
-        y.style.background = 'rgba(100, 100, 100, 0.9)'; // gray button
+        y.style.background = '#fc4141'; // gray button
         x.style.height = '0px'; // no footer height 
       } else {
-        y.style.background = 'rgba(146, 239, 146, 0.8)' // green button
+        y.style.background = '#a30000' // green button
         x.style.height = '33vh';  // footer 33% of viewport height
       }
       clicked = !clicked
