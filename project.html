@@ -213,10 +213,11 @@
     // assigning variables to the jquery method and geojson, they can be ref later
 
     var lossV = "C_low_income_worker_job_loss_rate",
+        jobsV = "X000"
       countyV = "county_name";
 
     // $.getJSON() here
-    var countyLayer = $.getJSON("data/covid19_N.geojson", function (data) {
+    var countyLayer = $.getJSON("data/covid19_FINAL.geojson", function (data) {
 
       var dataLayer = L.geoJson(data, {
         style: function (feature) {
@@ -277,7 +278,9 @@
       // var breaks = [[0, 100], [100, 200], [200, 300], [300, 400], [400, 10000]]
       dataLayer.eachLayer(function (layer) {
         var props = layer.feature.properties;
-        var tipInfo = (`<b>${props["county_name"]}</b> <br> <i>Percent Job Loss: ${props[lossV]*100}</i>`)
+        var tipInfo = (`<b>${props["county_name"]}</b> <br> <br>
+        <b>Jobs Lost:</b> ${props[jobsV]} <br>
+        <i>Percent Job Loss: ${props[lossV]*100}</i>`)
 
         layer.setStyle({
           fillColor: getColor(props[lossV], breaks),
