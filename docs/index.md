@@ -1,37 +1,405 @@
-## Welcome to GitHub Pages
+# Covid 19 Pandemic: US Job Loss by County
+Low income job loss in Kentucky due to Covid-19
 
-You can use the [editor on GitHub](https://github.com/math264/US_Covid_Job_Loss/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+<!DOCTYPE html>
+<html>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<head>
+  <meta charset=utf-8 />
+  <title>Covid-19 Job Loss, KY</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <link rel='icon' href='https://newmapsplus.github.io/favicon.ico' type='image/x-icon' />
 
-### Markdown
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+  <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #b1b1b1;
+      font-family: Lato, sans-serif;
+      color: #0D0000;
+    }
 
-```markdown
-Syntax highlighted code block
+    header {
+      width: 80%;
+      margin: 10px auto 10px auto;
+    }
 
-# Header 1
-## Header 2
-### Header 3
+    .legend {
+      padding: 6px 8px;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
 
-- Bulleted
-- List
+    .legend h3 {
+      font-size: 1.1em;
+      font-weight: normal;
+      color: #001323;
+      margin: 0 0 10px 0;
+    }
 
-1. Numbered
-2. List
+    .legend span {
+      width: 20px;
+      height: 20px;
+      float: left;
+      margin: 0 10px 4px 0;
+    }
 
-**Bold** and _Italic_ and `Code` text
+    .legend label {
+      font-size: 1.1em;
+    }
 
-[Link](url) and ![Image](src)
-```
+    .legend label:after {
+      content: '';
+      display: block;
+      clear: both;
+    }
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+    #info-button {
+      padding: 8px 5px;
+      font-size: 0.9em;
+      font-weight: bolder;
+      /* Style matches Leaflet controls */
+      border: 2px solid rgba(244, 244, 244, 0.2);
+      background:#a30000;
+      color: #ffffff;
+      border-radius: 5px;
+      /* Position is fixed next to the zoom bar */
+      position: fixed;
+      top: 11px;
+      right: 52px;
+      /* Draw it on top of all elements */
+      z-index: 9999;
+      /* Cursor change on hover -- doesn't work on touch screensn */
+      cursor: pointer;
+    }
 
-### Jekyll Themes
+    #footer {
+      width: 100%;
+      background: rgba(244, 244, 244, 0.8);
+      color: rgba(20, 20, 20, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      height: 0px;
+      padding: 0px;
+      /* display below the button to allow clicking if overlay covers screen */
+      z-index: 9000;
+      position: absolute;
+      /* 
+    Hide the footer be default. This should not contain too much information. Like to a new page for extended content.
+    */
+      bottom: -10px;
+      /* If too much is included, enable scroll */
+      overflow: scroll;
+    }
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/math264/US_Covid_Job_Loss/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+    #footer div {
+      padding: 10px;
+    }
 
-### Support or Contact
+    #footer h1 {
+      font-size: 1.3em;
+      margin: 0 0 5px 0;
+    }
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+    .footer-img {
+      float: right;
+      height: 10vh;
+      margin: 10px;
+    }
+
+    h1 {
+      display: inline-block;
+      margin-right: 20px;
+      color: #a30000;
+    }
+
+    h2 {
+      display: inline-block;
+      color: #f1eef6;
+      stroke: #0D0000;
+    }
+
+    #map {
+      width: 80%;
+      height: 540px;
+      margin: 10px 10%;
+      background: rgb(73, 73, 73);
+      border: 2px solid #dddedf;
+    }
+
+    footer {
+      padding: 6px 10%;
+      width: 80%;
+    }
+
+    p {
+      font-size: 1em;
+      color: #001323;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Covid-19 Pandemic</h1>
+    <h2>Low-Income Job Loss by County, US</h2>
+  </header>
+
+  <div id='map'></div>
+  <button id="info-button" onclick="myInfo()">Information</button>
+  <div id='footer'>
+    <div><img src="https://uky-gis.github.io/graphics/logo-color-400px.png" class="footer-img">
+      <h1>Percentage of Covid-19 Job Loss by County</h1>
+      <br>
+      Data obtained through the Urban Institute Data Catalog (<a
+        href="https://datacatalog.urban.org/dataset/estimated-low-income-jobs-lost-covid-19">click here</a>).
+        <br>
+        Map created by <a href="https://github.com/math264"><i>Michael A. Thomas</i> (github: math264)</a>, Fall 2020.
+    </div>
+  </div>
+
+  <footer>
+    <p><b>Map authored by:</b> <i>Michael A. Thomas</i></p>
+
+    <p>This map displays the percentage of jobs lost in the US by county during Covid-19. The map is also interactive, so feel free
+      to use its features: change the zoom level to see up close or states like Alaska that are not intranational -
+      reference the legend to understand the data breakdown - click on any county to see the name and percent job loss.
+      This map is mobile-friendly too, so you can enjoy it on the go! Click the INFORMATION button in the top right
+      to open an info footer on mobile devices.
+    </p>
+      <h2>Metadata/Behind the Scenes</h2>
+    <p>
+      The geoJSON data was accessed using JQuery's AJAX in Leaflet's library. From there, the flow of execution 
+      sequenced through .getJSON(), drawMap(), getColor(), and drawLegend() methods. Adding a 
+      secondary state boundary geoJSON layer better defined states and their counties. 
+      
+    </p>
+
+    <br>
+    <a href="https://newmapsplus.github.io">
+      <img src="https://newmapsplus.github.io/assets/graphics/logo-2018-nmp-75px-h-gray.png"
+        alt="University of Kentucky Geography">
+    </a>
+
+    <a href="https://uky-gis.github.io">
+      <img src="https://newmapsplus.github.io/assets/graphics/logo-2018-geography-75px-h.png"
+        alt="University of Kentucky Geography">
+    </a>
+  </footer>
+
+  <!-- Load scripts using Subresource Integrity (SRI) is a security feature 
+      that enables browsers to verify that resources they fetch (from a CDN) 
+      are delivered without unexpected manipulation. -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+  <script src='https://unpkg.com/simple-statistics@7.2.0/dist/simple-statistics.min.js'></script>
+  
+
+  <script>
+    // MAKE AN AWESOME WEB MAP!
+    // Creating map and options
+    var options = {
+      zoomSnap: .1,
+      zoomControl: true
+    }
+    var map = L.map('map', options);
+    // adding data using JQuery method and style for drawing data layer
+    // assigning variables to the jquery method and geojson, they can be ref later
+
+    var lossV = "C_low_income_worker_job_loss_rate",
+      countyV = "county_name";
+
+    // $.getJSON() here
+    var countyLayer = $.getJSON("data/covid19_N.geojson", function (data) {
+
+      var dataLayer = L.geoJson(data, {
+        style: function (feature) {
+          return {
+            color: 'rgb(73, 73, 73)',
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: '#1f78b4'
+          };
+        }
+      }).addTo(map);
+
+      // find zoom extent from new layer
+      var zoomExtent = dataLayer.getBounds()
+
+      // Apply the extent to our map with a custom property
+      // that says max zoom on load will not exceed 8
+      // which adds margin around the state.
+      map.fitBounds(zoomExtent, {
+        maxZoom: 8
+      })
+
+      // call to new function here gets the data out of the
+      // callback function
+      drawMap(dataLayer);
+    });
+
+
+    // STATEWIDE LAYER
+    $.when(countyLayer).done(function () {
+      // load, filter, and style the state outline 
+      $.getJSON("data/us_states_20m.geojson", function (data) {
+
+        var stateLayer = L.geoJson(data, {
+          style: function (feature) {
+            return {
+              // Let's experiment with these colors shortly
+              // color: '#222222', // Gray
+              // color: '#00447c', // White
+              color: '#a30000',
+              // Make line weight larger than the county outline
+              weight: 2.25,
+              fillOpacity: 0,
+              // This property allows us control interactivty of layer
+              interactive: false
+            };
+          },
+
+        });
+        // Add layer to map!
+        stateLayer.addTo(map);
+      });
+    });
+
+    // DRAWMAP FUNCTION
+    function drawMap(dataLayer) {
+      var breaks = getClassBreaks(dataLayer);
+      // var breaks = [[0, 100], [100, 200], [200, 300], [300, 400], [400, 10000]]
+      dataLayer.eachLayer(function (layer) {
+        var props = layer.feature.properties;
+        var tipInfo = (`<b>${props["county_name"]}</b> <br> <i>Percent Job Loss: ${props[lossV]*100}</i>`)
+
+        layer.setStyle({
+          fillColor: getColor(props[lossV], breaks),
+        });
+        if (L.Browser.mobile) {
+          // if true use popup
+          layer.bindPopup(tipInfo);
+        } else {
+          // if false use tooltip
+          layer.bindTooltip(tipInfo, {
+            sticky: true
+          });
+        };
+      });
+      drawLegend(breaks);
+    };
+    // end drawMap()
+
+
+    // CREATING BREAKS FOR MEDIAN RENT
+    function getClassBreaks(dataLayer) {
+      // create empty Array for storing values
+      var values = [];
+
+      // loop through all the counties
+      dataLayer.eachLayer(function (layer) {
+        var props = layer.feature.properties;
+        if (props[lossV] != null) {
+          var value = Number(props[lossV]);
+          values.push(value);
+          console.log(1);
+        }
+      });
+
+      // determine similar clusters
+      var clusters = ss.ckmeans(values, 5);
+
+      // create an array of the lowest value within each cluster
+      var breaks = clusters.map(function (cluster) {
+        return [cluster[0], cluster.pop()];
+      });
+
+      return breaks; // return Array of class breaks
+    } // end getClassBreaks function
+
+    // GETCOLOR FUNCTION
+    function getColor(d, breaks) {
+
+      if (d <= breaks[0][1]) {
+        return '#f1eef6';
+      } else if (d <= breaks[1][1]) {
+        return '#ff9797';
+      } else if (d <= breaks[2][1]) {
+        return '#ff5656';
+      } else if (d <= breaks[3][1]) {
+        return '#ff2020'
+      } else if (d <= breaks[4][1]) {
+        return '#a30000'
+      }
+    } // end getColor
+
+    // LEGEND
+    function drawLegend(breaks) {
+
+      // create a new Leaflet control object, and position it top left
+      var legend = L.control({ position: 'bottomleft' });
+
+      // when the legend is added to the map
+      legend.onAdd = function () {
+
+        // create a new HTML <div> element and give it a class name of "legend"
+        var div = L.DomUtil.create('div', 'legend');
+
+        // first append an <h3> tag to the div holding the current attribute
+        // and norm values (i.e., the mapped phenomena)
+        div.innerHTML = `<h3>Percent Job Loss/County<h3>`;
+
+        // for each of our breaks
+        for (var i = 0; i < breaks.length; i++) {
+          // determine the color associated with each break value,
+          // including the lower range value
+          var color = getColor(breaks[i][0], breaks);
+
+          // concatenate a <span> tag styled with the color and the range values
+          // of that class and include a label with the low and a high ends of that class range
+          div.innerHTML +=
+            `<span style="background:${color}"></span>
+            <label>${(breaks[i][0]).toLocaleString()*100}&mdash;
+            ${(breaks[i][1]).toLocaleString()*100}</label>`;
+        }
+
+        // return the populated div to be added to the map
+        return div;
+      };
+
+      // add the legend to the map
+      legend.addTo(map);
+    }
+
+    /* --------------- Toggle on/off info footer content ---------------  */
+    var clicked = false // start with false condition
+    function myInfo() {
+
+      // create button that changes color on click
+      // create a footer overlay that displays 33% of the current viewport height
+      var x = document.getElementById('footer');
+      var y = document.getElementById('info-button');
+      if (clicked) {
+        y.style.background = '#fc4141'; // gray button
+        x.style.height = '0px'; // no footer height 
+      } else {
+        y.style.background = '#a30000' // green button
+        x.style.height = '33vh';  // footer 33% of viewport height
+      }
+      clicked = !clicked
+
+    }
+  </script>
+
+</body>
+
+</html>
