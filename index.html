@@ -282,7 +282,7 @@
         var props = layer.feature.properties;
         var tipInfo = (`<b>${props["county_name"]}</b> <br> <br>
         <b>Jobs Lost:</b> ${props[jobsV]} <br>
-        <i>Percent Job Loss: ${Math.round(props[lossV]*100)}</i> <b>%</b>`)
+        <i>Percent: ${Math.round(props[lossV]*100)}</i> <b>%</b>`)
 
         layer.setStyle({
           fillColor: getColor(props[lossV], breaks),
