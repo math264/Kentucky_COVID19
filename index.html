@@ -30,14 +30,14 @@
       padding: 6px 8px;
       font-size: 1em;
       background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 15px #a30000;
       border-radius: 5px;
     }
 
     .legend h3 {
       font-size: 1.1em;
       font-weight: normal;
-      color: #001323;
+      color: #a30000;
       margin: 0 0 10px 0;
     }
 
@@ -208,9 +208,18 @@
     // Creating map and options
     var options = {
       zoomSnap: .1,
-      zoomControl: true
+      zoomControl: true,
+      center: [41.3, -99.4],
+      zoom: 4
     }
     var map = L.map('map', options);
+
+    var tiles = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
     // adding data using JQuery method and style for drawing data layer
     // assigning variables to the jquery method and geojson, they can be ref later
 
@@ -231,19 +240,6 @@
           };
         }
       }).addTo(map);
-
-      // find zoom extent from new layer
-      var zoomExtent = dataLayer.getBounds()
-
-      // // Apply the extent to our map with a custom property
-      // // that says max zoom on load will not exceed 8
-      // // which adds margin around the state.
-      map.fitBounds(zoomExtent, {
-        maxZoom: 8
-      })
-
-      // call to new function here gets the data out of the
-      // callback function
       drawMap(dataLayer);
     });
 
@@ -280,9 +276,9 @@
       // var breaks = [[0, 100], [100, 200], [200, 300], [300, 400], [400, 10000]]
       dataLayer.eachLayer(function (layer) {
         var props = layer.feature.properties;
-        var tipInfo = (`<b>${props["county_name"]}</b> <br> <br>
+        var tipInfo = (`<span style='color:#a30000'><i>${props["county_name"]}</i></span> <br>
         <b>Jobs Lost:</b> ${props[jobsV]} <br>
-        <i>Percent: ${Math.round(props[lossV]*100)}</i> <b>%</b>`)
+        <b>Percent:</b> ${Math.round(props[lossV]*100)} %`)
 
         layer.setStyle({
           fillColor: getColor(props[lossV], breaks),
