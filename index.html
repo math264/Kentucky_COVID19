@@ -174,7 +174,9 @@
     <p>
       The map's data represents two seperate files collected from the Urban Institue Data Catalog: a <b>.geoJSON</b> and a <b>.csv</b>.
       Utilizing the spatial geometry of the geoJSON and job loss rate in the csv, a new geoJSON was exported with a complete
-      tabular join of the needed data. The geoJSON data was accessed using JQuery's AJAX in Leaflet's library. From there, the flow of execution 
+      tabular join of the needed data. The job loss rate was suitable for a chloropleth map since the rate is already a normalized byproduct
+      of jobs lost divided by the total number of jobs in each county.
+      The geoJSON data was accessed using JQuery's AJAX in Leaflet's library. From there, the flow of execution 
       sequenced through .getJSON(), drawMap(), getColor(), and drawLegend() methods. Adding a 
       secondary state boundary geoJSON layer better defined states and their counties. 
       
