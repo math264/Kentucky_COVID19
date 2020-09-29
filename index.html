@@ -230,7 +230,7 @@
       countyV = "county_name";
 
     // $.getJSON() here
-    var countyLayer = $.getJSON("data/covid19_FINAL.geojson", function (data) {
+    var countyLayer = $.getJSON("data/covid19_FINAL-simplified.geojson", function (data) {
 
       var dataLayer = L.geoJson(data, {
         style: function (feature) {
@@ -255,9 +255,9 @@
           style: function (feature) {
             return {
               // Let's experiment with these colors shortly
-              // color: '#222222', // Gray
+              color: '#111111', // Gray
               // color: '#00447c', // White
-              color: '#a30000',
+              // color: '#a30000',
               // Make line weight larger than the county outline
               weight: 2.25,
               fillOpacity: 0,
